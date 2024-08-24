@@ -1,0 +1,41 @@
+services:
+  # Products app API service
+  products_app:
+    container_name: products_app
+    build:
+      dockerfile: docker/Dockerfile
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    depends_on:
+      - products_app_postgres
+
+    networks:
+      - products_app_backend
+
+  # DB for Products App
+  products_app_postgres:
+    container_name: products_app_postgres
+    image: postgres:16
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    networks:
+      - products_app_backend
+
+    volumes:
+      - products_app_postgres_data:/var/lib/postgresql/data/
+
+
+networks:
+  products_app_backend:
+    driver: bridge
+
+volumes:
+  products_app_postgres_data:

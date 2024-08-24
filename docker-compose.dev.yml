@@ -1,0 +1,16 @@
+services:
+  # Products app API service
+  products_app:
+    build:
+      target: development
+
+    volumes:
+      - ./:/app/
+
+    ports:
+      - "8000:8000"
+
+  # DB for Products App
+  products_app_postgres:
+    ports:
+      - "5433:5432"

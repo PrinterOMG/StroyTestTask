@@ -1,0 +1,25 @@
+x-postgres_healthcheck: &pg_healthcheck
+  healthcheck:
+    test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+    interval: 30s
+    start_interval: 5s
+    timeout: 10s
+    retries: 3
+
+
+services:
+  # Products app API service
+  products_app:
+    build:
+      target: production
+
+    environment:
+      - PORT=8000
+
+    depends_on:
+      products_app_postgres:
+        condition: service_healthy
+
+  # DB for Products App
+  products_app_postgres:
+    <<: *pg_healthcheck
