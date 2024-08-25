@@ -15,4 +15,10 @@ class CategoryModel(BaseModel):
         ForeignKey('category.id', ondelete='SET NULL'),
     )
 
-    parent_category: Mapped['CategoryModel'] = relationship()
+    parent_category: Mapped['CategoryModel'] = relationship(
+        back_populates='sub_categories',
+        remote_side='CategoryModel.id',
+    )
+    sub_categories: Mapped[list['CategoryModel']] = relationship(
+        back_populates='parent_category',
+    )
