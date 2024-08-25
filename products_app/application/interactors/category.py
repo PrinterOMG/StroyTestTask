@@ -1,5 +1,6 @@
 from products_app.application.dto.category import UpdateCategoryDTO, NewCategoryDTO
 from products_app.application.interfaces.category import (
+    CategoryDeleter,
     CategoryGatewayProtocol,
     CategoryReader,
     CategorySaver,
@@ -48,7 +49,7 @@ class GetCategoryByIdInteractor:
     async def __call__(self, category_id: str) -> CategoryEntity:
         category = await self._category_gateway.get_by_id(category_id=category_id)
         if category is None:
-            raise CategoryNotFoundError
+            raise CategoryNotFoundError(identifier=category_id)
 
         return category
 
@@ -94,7 +95,7 @@ class UpdateCategoryInteractor:
             category_id=category_update.id,
         )
         if category is None:
-            raise CategoryNotFoundError
+            raise CategoryNotFoundError(identifier=category_update.id)
 
         category.name = category_update.name
         category.parent_category_id = category_update.parent_category_id
@@ -106,15 +107,12 @@ class UpdateCategoryInteractor:
 class DeleteCategoryInteractor:
     def __init__(
         self,
-        category_gateway: CategoryGatewayProtocol,
+        category_gateway: CategoryDeleter,
         uow: UnitOfWork,
     ):
         self._category_gateway = category_gateway
         self._uow = uow
 
     async def __call__(self, category_id: str) -> None:
-        if await self._category_gateway.get_by_id(category_id=category_id) is None:
-            raise CategoryNotFoundError
-
         await self._category_gateway.delete(category_id=category_id)
         await self._uow.commit()

@@ -23,19 +23,38 @@ pytest = "^8.3.2"
 pytest-asyncio = "^0.24.0"
 ruff = "^0.6.2"
 pre-commit = "^3.8.0"
+pytest-docker = "^3.1.1"
+httpx = "^0.27.0"
+
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+]
+asyncio_mode="auto"
+filterwarnings = [
+    'ignore::DeprecationWarning',
+    # This warning occurs when testing endpoints that delete something,
+    # since after the test runs in the fixture, deletion also occurs
+    'ignore::sqlalchemy.exc.SAWarning',
+]
+
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "B"]
 ignore = ["E501"]
 unfixable = ["B"]
 
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
+
 
 [tool.ruff.format]
 quote-style = "single"

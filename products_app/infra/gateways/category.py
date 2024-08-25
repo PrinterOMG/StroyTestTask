@@ -1,7 +1,5 @@
-from uuid import UUID
-
-from sqlalchemy import delete, select, update
-from sqlalchemy.exc import MissingGreenlet
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.exc import IntegrityError, MissingGreenlet
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -10,6 +8,7 @@ from products_app.domain.entitites.category import (
     CategoryEntity,
     ExtendedCategoryEntity,
 )
+from products_app.domain.exceptions.category import CategoryNotFoundError
 from products_app.infra.database.models import CategoryModel
 
 
@@ -84,14 +83,19 @@ class CategoryGateway(CategoryGatewayProtocol):
         return [CategoryGateway.to_entity(category) for category in categories]
 
     async def save(self, category: CategoryEntity) -> None:
-        model = CategoryModel(
-            id=UUID(category.id),
+        stmt = insert(CategoryModel).values(
+            id=category.id,
             created_at=category.created_at,
             name=category.name,
             parent_category_id=category.parent_category_id,
         )
 
-        self._session.add(model)
+        try:
+            await self._session.execute(stmt)
+        except IntegrityError as error:
+            raise CategoryNotFoundError(
+                identifier=category.parent_category_id,
+            ) from error
 
     async def update(self, category: CategoryEntity) -> None:
         stmt = (
@@ -103,7 +107,12 @@ class CategoryGateway(CategoryGatewayProtocol):
             )
         )
 
-        await self._session.execute(stmt)
+        try:
+            await self._session.execute(stmt)
+        except IntegrityError as error:
+            raise CategoryNotFoundError(
+                identifier=category.parent_category_id,
+            ) from error
 
     async def delete(self, category_id: str) -> None:
         await self._session.execute(

@@ -61,7 +61,7 @@ async def get_root_categories(
 )
 async def get_all_categories(
     offset: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=0, le=200)] = 200,
+    limit: Annotated[int, Query(gt=0, le=200)] = 200,
     *,
     interactor: FromDishka[GetAllCategoriesInteractor],
 ):
@@ -96,7 +96,7 @@ async def get_by_id(
     except CategoryNotFoundError as error:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Category not found',
+            detail=str(error),
         ) from error
 
 
@@ -104,6 +104,12 @@ async def get_by_id(
     '/',
     status_code=status.HTTP_201_CREATED,
     response_model=CategoryCreateResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            'description': 'Parent category not found',
+            'model': ErrorDetail,
+        },
+    },
 )
 async def create_category(
     category: CategoryCreate,
@@ -113,12 +119,18 @@ async def create_category(
     """
     Создает новую категорию.
     """
-    category_id = await interactor(
-        new_category=NewCategoryDTO(
-            name=category.name,
-            parent_category_id=category.parent_category_id,
-        ),
-    )
+    try:
+        category_id = await interactor(
+            new_category=NewCategoryDTO(
+                name=category.name,
+                parent_category_id=category.parent_category_id,
+            ),
+        )
+    except CategoryNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(error),
+        ) from error
 
     return CategoryCreateResponse(id=category_id)
 
@@ -155,7 +167,7 @@ async def update_category(
     except CategoryNotFoundError as error:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Category not found',
+            detail=str(error),
         ) from error
 
 
