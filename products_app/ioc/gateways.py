@@ -7,7 +7,15 @@ from products_app.application.interfaces.category import (
     CategorySaver,
     CategoryUpdater,
 )
+from products_app.application.interfaces.product import (
+    ProductDeleter,
+    ProductGatewayProtocol,
+    ProductReader,
+    ProductSaver,
+    ProductUpdater,
+)
 from products_app.infra.gateways.category import CategoryGateway
+from products_app.infra.gateways.product import ProductGateway
 
 
 class GatewaysProvider(Provider):
@@ -21,5 +29,16 @@ class GatewaysProvider(Provider):
             CategoryDeleter,
             CategoryUpdater,
             CategoryGatewayProtocol,
+        ],
+    )
+
+    product_gateway = provide(
+        ProductGateway,
+        provides=AnyOf[
+            ProductReader,
+            ProductSaver,
+            ProductDeleter,
+            ProductUpdater,
+            ProductGatewayProtocol,
         ],
     )

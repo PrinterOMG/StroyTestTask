@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, Numeric
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from products_app.infra.database.models.base import BaseModel
@@ -20,6 +21,7 @@ class ProductModel(BaseModel):
     stock: Mapped[float] = mapped_column(Numeric(precision=12, scale=2))
     unit: Mapped[str] = mapped_column()
     unit_size: Mapped[float] = mapped_column(Numeric(precision=12, scale=2))
+    attributes: Mapped[dict] = mapped_column(JSONB)
 
     category_id: Mapped[UUID] = mapped_column(ForeignKey('category.id'))
 

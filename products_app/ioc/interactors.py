@@ -8,6 +8,13 @@ from products_app.application.interactors.category import (
     GetCategoryByIdInteractor,
     UpdateCategoryInteractor,
 )
+from products_app.application.interactors.product import (
+    CreateProductInteractor,
+    DeleteProductInteractor,
+    GetAllProductsInteractor,
+    GetProductByIdInteractor,
+    UpdateProductInteractor,
+)
 
 
 class InteractorsProvider(Provider):
@@ -20,4 +27,9 @@ class InteractorsProvider(Provider):
         GetAllCategoriesInteractor,
         UpdateCategoryInteractor,
         DeleteCategoryInteractor,
+        GetAllProductsInteractor,
+        GetProductByIdInteractor,
+        UpdateProductInteractor,
+        DeleteProductInteractor,
+        CreateProductInteractor,
     )
