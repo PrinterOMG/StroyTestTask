@@ -13,5 +13,5 @@ class ProductEntity:
     stock: Decimal
     unit: str
     unit_size: Decimal
-    category_id: str
+    category_id: str | None
     attributes: dict

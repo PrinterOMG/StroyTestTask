@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, Numeric
@@ -23,6 +23,8 @@ class ProductModel(BaseModel):
     unit_size: Mapped[float] = mapped_column(Numeric(precision=12, scale=2))
     attributes: Mapped[dict] = mapped_column(JSONB)
 
-    category_id: Mapped[UUID] = mapped_column(ForeignKey('category.id'))
+    category_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey('category.id', ondelete='SET NULL'),
+    )
 
-    category: Mapped['CategoryModel'] = relationship()
+    category: Mapped[Optional['CategoryModel']] = relationship()

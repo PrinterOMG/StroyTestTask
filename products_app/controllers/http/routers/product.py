@@ -113,6 +113,7 @@ async def get_all_products(
 @router.post(
     '/',
     response_model=ProductCreateResponse,
+    status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_404_NOT_FOUND: {
             'description': 'Category not found',
@@ -129,7 +130,7 @@ async def create_product(
     Создает новый товар.
     """
     try:
-        return await interactor(
+        product_id = await interactor(
             product=NewProductDTO(
                 name=product.name,
                 description=product.description,
@@ -146,6 +147,8 @@ async def create_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(error),
         ) from error
+
+    return ProductCreateResponse(id=product_id)
 
 
 @router.put(
@@ -169,12 +172,12 @@ async def update_product(
     """
     try:
         return await interactor(
-            product=UpdateProductDTO(
+            product_update=UpdateProductDTO(
                 id=str(product_id),
                 name=product.name,
                 description=product.description,
                 price=Decimal(product.price),
-                category_id=str(product.category_id),
+                category_id=str(product.category_id) if product.category_id else None,
                 stock=Decimal(product.stock),
                 unit=product.unit,
                 unit_size=Decimal(product.unit_size),

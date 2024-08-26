@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
@@ -15,7 +16,7 @@ class CategoryModel(BaseModel):
         ForeignKey('category.id', ondelete='SET NULL'),
     )
 
-    parent_category: Mapped['CategoryModel'] = relationship(
+    parent_category: Mapped[Optional['CategoryModel']] = relationship(
         back_populates='sub_categories',
         remote_side='CategoryModel.id',
     )

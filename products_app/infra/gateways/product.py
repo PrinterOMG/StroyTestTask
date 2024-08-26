@@ -53,7 +53,10 @@ class ProductGateway(ProductGatewayProtocol):
                         left = left.cast(DECIMAL)
 
                 if operator == 'eq':
-                    stmt = stmt.where(left == str(value))
+                    if isinstance(value, (int, float)):
+                        stmt = stmt.where(left.cast(DECIMAL) == value)
+                    else:
+                        stmt = stmt.where(left == str(value))
                 elif operator == 'gt':
                     stmt = stmt.where(left > float(value))
                 elif operator == 'lt':
